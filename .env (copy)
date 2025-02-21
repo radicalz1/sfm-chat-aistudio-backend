@@ -1,0 +1,2 @@
+PORT=5000
+MONGODB_URI="mongodb+srv://user:pass@app-name.c2cf8.mongodb.net/?retryWrites=true&w=majority&appName=app-name"
