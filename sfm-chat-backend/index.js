@@ -57,6 +57,7 @@ async function startServer() {
     io.on('connection', (socket) => {
       console.log('Client connected:', socket.id);
 
+      // In your server's message handler
       socket.on('message', async (message) => {
         console.log('Received message type:', message.type);
         try {
@@ -66,24 +67,23 @@ async function startServer() {
             socketId: socket.id
           };
 
-          if (message.type === 'image' && message.uri) {
-            const imageUrl = await uploadToCloudinary(
-              message.uri,
-              message.patientId || 'default'
-            );
-            messageWithMetadata.uri = imageUrl;
+          // In your server code, modify the document upload handler
+          if (message.type === 'document') {
+            const fileExt = message.name.split('.').pop();
+            const uploadResponse = await cloudinary.uploader.upload(message.uri, {
+              folder: `patients/${message.patientId || 'default'}/documents`,
+              resource_type: 'raw',
+              public_id: `${Date.now()}_${message.name}`,
+              use_filename: true,
+              unique_filename: true
+            });
+            messageWithMetadata.uri = uploadResponse.secure_url;
+            messageWithMetadata.originalName = message.name;
           }
 
           await messagesCollection.insertOne(messageWithMetadata);
-          console.log('Message saved to DB');
-
+          console.log('Message saved:', messageWithMetadata);
           socket.broadcast.emit('message', messageWithMetadata);
-          console.log('Message broadcasted');
-
-          socket.emit('message:ack', {
-            messageId: message.id,
-            status: 'delivered'
-          });
         } catch (error) {
           console.error('Error handling message:', error);
           socket.emit('error', { message: 'Failed to process message' });
