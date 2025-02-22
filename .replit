@@ -1,18 +1,13 @@
-entrypoint = "sfm-chat-backend/index.js"  # Add "sfm-chat-backend/" prefix
-modules = ["nodejs-20"]
+run = "cd sfm-chat-backend && npm run install-deps && npm start"
+entrypoint = "sfm-chat-backend/index.js"
+modules = ["nodejs-20", "nix"]
 hidden = [".config", "package-lock.json"]
-
-[gitHubImport]
-requiredFiles = [".replit", "replit.nix", "package.json", "package-lock.json"]
 
 [nix]
 channel = "stable-24_05"
 
-[unitTest]
-language = "nodejs"
-
 [deployment]
-run = ["node", "sfm-chat-backend/index.js"] # Add "sfm-chat-backend/" prefix
+run = ["npm", "start"]
 deploymentTarget = "cloudrun"
 ignorePorts = false
 

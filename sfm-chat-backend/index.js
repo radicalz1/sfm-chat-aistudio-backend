@@ -12,12 +12,15 @@ app.use(cors()); // Enable CORS for all routes
 app.use(bodyParser.json()); // Parse JSON request bodies
 
 // MongoDB Connection
-const uri = process.env.MONGODB_URI; // Get MongoDB URI from .env file
-mongoose.connect(uri, { });
-const connection = mongoose.connection;
-connection.once('open', () => {
-  console.log("MongoDB database connection established successfully");
-});
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  console.log("Running without database connection - MONGODB_URI not found");
+  // Continue running the app without MongoDB
+} else {
+  mongoose.connect(uri)
+    .then(() => console.log("MongoDB database connection established successfully"))
+    .catch(err => console.error("MongoDB connection error:", err));
+}
 
 // Simple route for testing
 app.get('/', (req, res) => {
